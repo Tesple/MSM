@@ -8,5 +8,80 @@
     <artifactId>MSM</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    
+    <packaging>js</packaging>
+
+    <name>MSM 3d mobile app</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.nanoko.coffee-mill</groupId>
+                <artifactId>coffee-mill-maven-plugin</artifactId>
+                <version>1.1.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <skipJsCompilation>             ${cm.skipJsCompilation}            </skipJsCompilation>
+                    <skipJsAggregation>             ${cm.skipJsAggregation}            </skipJsAggregation>
+                    <skipJsMinification>            ${cm.skipJsMinification}           </skipJsMinification>
+                    <skipJsLint>                    ${cm.skipJsLint}                   </skipJsLint>
+                    <skipCssCompilation>            ${cm.skipCssCompilation}           </skipCssCompilation>
+                    <skipCssAggregation>            ${cm.skipCssAggregation}           </skipCssAggregation>
+                    <skipCssMinification>           ${cm.skipCssMinification}          </skipCssMinification>
+                    <skipJasmineITTest>             ${cm.skipJasmineITTest}            </skipJasmineITTest>
+                    <skipJasmineTest>               ${cm.skipJasmineTest}              </skipJasmineTest>
+                    <skipHtmlCompression>           ${cm.skipHtmlCompression}          </skipHtmlCompression>
+                    <watchJettyServerPort>          ${cm.watchJettyServerPort}         </watchJettyServerPort>
+                    <javaScriptIntegrationTestDir>  ${cm.javaScriptIntegrationTestDir> </javaScriptIntegrationTestDir>
+                    <jsAggregationFiles>
+                        <!-- Sandbox -->
+                        <file>Sandbox.js</file>
+                        <!-- Auxilary libs-->
+                        <file>jquery.min.js</file>
+                        <file>dat.gui.min.js</file>
+                        <file>gl-matrix.js</file>
+                        <file>phoria-min.js</file>
+                        <file>phoria-entity.js</file>
+                        <file>phoria-renderer.js</file>
+                        <file>phoria-scene.js</file>
+                        <file>phoria-util.js</file>
+                        <file>phoria-view.js</file>
+                        <file>jUtils.js</file>
+                        <!-- others -->
+                        <file>animation/PhoriaAnimation.js</file>
+                        <file>init.js</file>
+                    </jsAggregationFiles>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!-- PROFILES -->
+    <profiles>
+        <!-- DEVELOPMENT -->
+        <profile>
+            <id>Development</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <ENV>                               Development                 </ENV>
+                <rp.version>                        ${project.version}     </rp.version>
+                <rp.jsFile>                         ${project.artifactId}-${project.version}.js</rp.jsFile>
+                <rp.cssFile>                        ${project.artifactId}-${project.version}.css</rp.cssFile>
+                <cm.skipJsCompilation>              false                  </cm.skipJsCompilation>
+                <cm.skipJsAggregation>              false                  </cm.skipJsAggregation>
+                <cm.skipJsMinification>             true                   </cm.skipJsMinification>
+                <cm.skipJsLint>                     true                   </cm.skipJsLint>
+                <cm.skipCssCompilation>             false                  </cm.skipCssCompilation>
+                <cm.skipCssAggregation>             false                  </cm.skipCssAggregation>
+                <cm.skipCssMinification>            true                   </cm.skipCssMinification>
+                <cm.skipJasmineITTest>              true                   </cm.skipJasmineITTest>
+                <cm.skipJasmineTest>                true                   </cm.skipJasmineTest>
+                <cm.skipHtmlCompression>            false                  </cm.skipHtmlCompression>
+                <cm.watchJettyServerPort>           8872                   </cm.watchJettyServerPort>
+                <cm.javaScriptIntegrationTestDir>   src/test/integration   </cm.javaScriptIntegrationTestDir>
+            </properties>
+        </profile>
+    </profiles>
 </project>
