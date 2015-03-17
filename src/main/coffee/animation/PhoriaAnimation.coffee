@@ -1,3 +1,8 @@
 class _.animation.PhoriaAnimation
-    constructor: ->
-        alert "Phoria"
+
+  requestAnimation: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || ((c)=>window.setTimeout(c, 15))
+
+  constructor: ->
+    @initScene()
+
+  initScene:=>
