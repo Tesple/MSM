@@ -41,18 +41,7 @@ function init()
    var renderer = new Phoria.CanvasRenderer(canvas);
 
    // add a grid to help visualise camera position etc.
-   var plane = Phoria.Util.generateTesselatedPlane(8,8,0,20);
-   scene.graph.push(Phoria.Entity.create({
-      points: plane.points,
-      edges: plane.edges,
-      polygons: plane.polygons,
-      style: {
-         drawmode: "wireframe",
-         shademode: "plain",
-         linewidth: 0.5,
-         objectsortmode: "back"
-      }
-   }));
+
    var c = Phoria.Util.generateUnitCube();
    var cube = Phoria.Entity.create({
       points: c.points,
@@ -66,7 +55,7 @@ function init()
    }
    scene.graph.push(cube);
    scene.graph.push(Phoria.DistantLight.create({
-      direction: {x:0, y:-0.5, z:1}
+      direction: {x:0, y:-3, z:5}
    }));
 
    var pause = false;
@@ -74,7 +63,7 @@ function init()
       if (!pause)
       {
          // rotate local matrix of the cube
-         cube.rotateY(0.5*Phoria.RADIANS);
+         cube.rotateY(.4*Phoria.RADIANS);
 
          // execute the model view 3D pipeline and render the scene
          scene.modelView();
@@ -119,72 +108,10 @@ function init()
       scene.camera.lookat.z = pos[2];
    }
 
-   // key binding
-   document.addEventListener('keydown', function(e) {
-      switch (e.keyCode)
-      {
-         case 27: // ESC
-            pause = !pause;
-            break;
-         case 87: // W
-            // move forward along current heading
-            fnPositionLookAt(vec3.fromValues(0,0,1), heading, lookAt);
-            break;
-         case 83: // S
-            // move back along current heading
-            fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
-            break;
-         case 65: // A
-            // strafe left from current heading
-            fnPositionLookAt(vec3.fromValues(-1,0,0), heading, lookAt);
-            break;
-         case 68: // D
-            // strafe right from current heading
-            fnPositionLookAt(vec3.fromValues(1,0,0), heading, lookAt);
-            break;
-         case 37: // LEFT
-            // turn left
-            heading += Phoria.RADIANS*4;
-            // recalculate lookAt
-            // given current camera position, project a lookAt vector along current heading for N units
-            fnPositionLookAt(vec3.fromValues(0,0,0), heading, lookAt);
-            break;
-         case 39: // RIGHT
-            // turn right
-            heading -= Phoria.RADIANS*4;
-            // recalculate lookAt
-            // given current camera position, project a lookAt vector along current heading for N units
-            fnPositionLookAt(vec3.fromValues(0,0,0), heading, lookAt);
-            break;
-         case 38: // UP
-            lookAt[1]++;
-            fnPositionLookAt(vec3.fromValues(0,0,0), heading, lookAt);
-            break;
-         case 40: // DOWN
-            lookAt[1]--;
-            fnPositionLookAt(vec3.fromValues(0,0,0), heading, lookAt);
-            break;
-      }
-   }, false);
-
-   /*
-   KEY:
-   {
-      SHIFT:16, CTRL:17, ESC:27, RIGHT:39, UP:38, LEFT:37, DOWN:40, SPACE:32,
-      A:65, E:69, G:71, L:76, P:80, R:82, S:83, Z:90
-   },
-   */
-
    // add GUI controls
    var gui = new dat.GUI();
    var f = gui.addFolder('Perspective');
    f.add(scene.perspective, "fov").min(5).max(175);
-   f.add(scene.perspective, "near").min(1).max(100);
-   f.add(scene.perspective, "far").min(1).max(1000);
-   f = gui.addFolder('Camera LookAt');
-   f.add(scene.camera.lookat, "x").min(-100).max(100);
-   f.add(scene.camera.lookat, "y").min(-100).max(100);
-   f.add(scene.camera.lookat, "z").min(-100).max(100);
    f = gui.addFolder('Camera Position');
    f.add(scene.camera.position, "x").min(-100).max(100);
    f.add(scene.camera.position, "y").min(-100).max(100);
@@ -192,7 +119,6 @@ function init()
    f = gui.addFolder('Camera Up');
    f.add(scene.camera.up, "x").min(-10).max(10).step(0.1);
    f.add(scene.camera.up, "y").min(-10).max(10).step(0.1);
-   f.add(scene.camera.up, "z").min(-10).max(10).step(0.1);
 
    // start animation
    requestAnimFrame(fnAnimate);
@@ -201,6 +127,6 @@ function init()
 
 </head>
 <body>
-<canvas id="canvas" width="768" height="512" style="background-color: #eee"></canvas>
+<canvas id="canvas" width="512" height="512"></canvas>
 </body>
 </html>
