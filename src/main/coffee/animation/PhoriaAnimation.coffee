@@ -5,7 +5,13 @@ class _.animation.PhoriaAnimation
   constructor: ->
     @setupNamespace()
     @loadBitmaps()
-    @pinGUIControls()
+
+    if $.browser.isMobile
+      @pinMobileEvents()
+      @pinMobileScreenResize()
+    else
+      @pinGUIControls()
+      #@pinScreenResize()
 
   setupNamespace:=>
     # define requestAnimationFrame as requestAnimFrame
@@ -20,7 +26,7 @@ class _.animation.PhoriaAnimation
     @ns.bitmaps  = []
     @ns.canvas   = $('body canvas')[0]
     @ns.scene    = new Phoria.Scene()
-    @ns.renderer = new Phoria.CanvasRenderer(canvas)
+    @ns.renderer = new Phoria.CanvasRenderer(@ns.canvas)
     @ns.c        = Phoria.Util.generateUnitCube()
     @ns.cube     = Phoria.Entity.create(
         {
@@ -31,33 +37,7 @@ class _.animation.PhoriaAnimation
     )
     @ns.pause    = false
     @ns.heading  = 0.0
-    @ns.lookAt   = vec3.fromValues(0, -5, 15)
-    @ns.gui      = new dat.GUI();
-
-  pinGUIControls: =>
-    f = @ns.gui.addFolder('Perspective')
-    f.add(@ns.scene.perspective, "fov")
-     .min(5)
-     .max(175)
-    f = @ns.gui.addFolder('Camera Position')
-    f.add(@ns.scene.camera.position, "x")
-     .min(-100)
-     .max(100)
-    f.add(@ns.scene.camera.position, "y")
-     .min(-100)
-     .max(100)
-    f.add(@ns.scene.camera.position, "z")
-     .min(-100)
-     .max(100)
-    f = @ns.gui.addFolder('Camera Up')
-    f.add(@ns.scene.camera.up, "x")
-     .min(-10)
-     .max(10)
-     .step(0.1)
-    f.add(@ns.scene.camera.up, "y")
-     .min(-10)
-     .max(10)
-     .step(0.1)
+    @ns.lookAt   = vec3.fromValues(0, -5, 1)
 
   loadBitmaps:=>
      for i in [0...6]
@@ -121,4 +101,81 @@ class _.animation.PhoriaAnimation
       @ns.scene.camera.lookat.y = pos[1]
       @ns.scene.camera.lookat.z = pos[2]
 
+    @ns.scene.perspective.fov = 12
+
     window.requestAnimFrame(fnAnimate)
+
+
+  pinGUIControls: =>
+    @ns.gui = new dat.GUI()
+    f = @ns.gui.addFolder('Camera Up')
+    f.add(@ns.scene.camera.up, "x")
+    .min(-10)
+    .max(10)
+    .step(0.1)
+    f.add(@ns.scene.camera.up, "y")
+    .min(-10)
+    .max(10)
+    .step(0.1)
+    f.add(@ns.scene.camera.up, "z")
+    .min(-10)
+    .max(10)
+    .step(0.1)
+
+
+  pinMobileEvents:=>
+    @statusNode = $("body #status")
+    unless window.DeviceOrientationEvent?
+      @statusNode.text("DeviceOrientationEvent is not supported!")
+    else
+      @statusNode.text("DeviceOrientationEvent SUPPORTED!")
+      lastEvent = Date.now()
+
+      window.addEventListener('deviceorientation',
+        ((eventData)=>
+          if Date.now() - lastEvent > 100
+
+            gamma = eventData.gamma
+
+            if -60 < gamma < 0
+              lastEvent = Date.now()
+              beta = eventData.beta
+              beta = if beta < -90 then -90 else if beta > 90 then 90 else beta
+              beta = beta / 9
+              sign = beta / Math.abs(beta)
+              beta = sign * Math.floor(Math.abs(beta) * 10) / 10
+
+              @ns.scene.camera.up.x = beta
+
+              gammaPrim = (-30 - gamma) / 2.5
+              @ns.scene.camera.position.y = gammaPrim
+
+              @statusNode.text("#{window.orientation}") # 0, 90 or 180 [orientation portrait//landscape]
+
+
+
+
+
+          # gamma is the left-to-right tilt in degrees, where right is positive
+          tiltLR = eventData.alpha.toFixed(2)
+          # beta is the front-to-back tilt in degrees, where front is positive
+          tiltFB = eventData.beta.toFixed(2)
+          # alpha is the compass direction the device is facing in degrees
+          dir = eventData.gamma.toFixed(2)
+          # call our orientation event handler
+
+          #@statusNode.text(JSON.stringify(eventData))
+        ), false
+      )
+
+  pinMobileScreenResize:=>
+    height = screen.availHeight
+    width  = screen.availWidth
+    dimension = Math.min(width, height)
+    dimension = dimension - 100
+
+    $("body canvas").attr(
+      width: dimension,
+      height: dimension
+    )
+    @statusNode.text("#{height} #{width}")
