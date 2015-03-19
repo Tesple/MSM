@@ -1,7 +1,11 @@
 class _.animation.PhoriaAnimation
   # define namespace for animation
   ns: {}
-
+  pos: {
+    alpha: .4
+    beta : .2
+    gamma: .2
+  }
   constructor: ->
     @statusNode = $("body #status")
     @setupNamespace()
@@ -77,7 +81,9 @@ class _.animation.PhoriaAnimation
 
     fnAnimate = =>
       if !@ns.pause
-        @ns.cube.rotateY(.4 * Phoria.RADIANS)
+        @ns.cube.rotateX(@pos.alpha * Phoria.RADIANS)
+        @ns.cube.rotateY(@pos.beta * Phoria.RADIANS)
+        @ns.cube.rotateZ(@pos.gamma * Phoria.RADIANS)
         @ns.scene.modelView()
         @ns.renderer.render(@ns.scene)
       window.requestAnimFrame(fnAnimate)
@@ -110,62 +116,27 @@ class _.animation.PhoriaAnimation
 
   pinGUIControls: =>
     @ns.gui = new dat.GUI()
-    f = @ns.gui.addFolder('Camera Up')
-    f.add(@ns.scene.camera.up, "x")
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    f.add(@ns.scene.camera.up, "y")
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    f.add(@ns.scene.camera.up, "z")
-    .min(-10)
-    .max(10)
-    .step(0.1)
-
+    f = @ns.gui.addFolder('Rotation speed')
+    f.add(@pos, "alpha").min(-1).max(1).step(0.01)
+    f.add(@pos, "beta").min(-1).max(1).step(0.01)
+    f.add(@pos, "gamma").min(-1).max(1).step(0.01)
 
   pinMobileEvents:=>
     unless window.DeviceOrientationEvent?
-      @statusNode.text("DeviceOrientationEvent is not supported!")
+      @statusNode.text("DeviceMotionEvent is not supported!")
     else
-      @statusNode.text("DeviceOrientationEvent SUPPORTED!")
-      lastEvent = Date.now()
+      @statusNode.text("DeviceMotionEvent SUPPORTED!")
 
       window.addEventListener('deviceorientation',
-        ((eventData)=>
-          if Date.now() - lastEvent > 100
+        ((event)=>
+          alpha = (event.alpha - 180) / 180
+          beta  = event.beta  / 180
+          gamma = event.gamma / 90
 
-            gamma = eventData.gamma
-
-            if -60 < gamma < 0
-              lastEvent = Date.now()
-              beta = eventData.beta
-              beta = if beta < -90 then -90 else if beta > 90 then 90 else beta
-              beta = beta / 9
-              sign = beta / Math.abs(beta)
-              beta = sign * Math.floor(Math.abs(beta) * 10) / 10
-
-              @ns.scene.camera.up.x = beta
-
-              gammaPrim = (-30 - gamma) / 2.5
-              @ns.scene.camera.position.y = gammaPrim
-
-              @statusNode.text("#{window.orientation}") # 0, 90 or 180 [orientation portrait//landscape]
-
-
-
-
-
-          # gamma is the left-to-right tilt in degrees, where right is positive
-          tiltLR = eventData.alpha.toFixed(2)
-          # beta is the front-to-back tilt in degrees, where front is positive
-          tiltFB = eventData.beta.toFixed(2)
-          # alpha is the compass direction the device is facing in degrees
-          dir = eventData.gamma.toFixed(2)
-          # call our orientation event handler
-
-          #@statusNode.text(JSON.stringify(eventData))
+          @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+          @ns.cube.rotateZ(beta  * Phoria.RADIANS) unless isNaN(beta)
+          @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNan(alpha)
+          @ns.cube.rotateY(gamma * Phoria.RADIANS) unless isNaN(gamma)
         ), false
       )
 
@@ -179,7 +150,6 @@ class _.animation.PhoriaAnimation
       width: dimension,
       height: dimension
     )
-    @statusNode.text("#{height} #{width}")
 
   pinScreenResize:=>
     screen = $(window)
@@ -192,4 +162,3 @@ class _.animation.PhoriaAnimation
       width: dimension,
       height: dimension
     )
-    @statusNode.text("#{height} #{width}")
