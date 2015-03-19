@@ -3,15 +3,17 @@ class _.animation.PhoriaAnimation
   ns: {}
 
   constructor: ->
+    @statusNode = $("body #status")
     @setupNamespace()
     @loadBitmaps()
 
     if $.browser.isMobile
       @pinMobileEvents()
-      @pinMobileScreenResize()
+      setInterval(@pinMobileScreenResize, 20)
     else
       @pinGUIControls()
-      #@pinScreenResize()
+      $(window).on("resize",@pinScreenResize)
+      @pinScreenResize()
 
   setupNamespace:=>
     # define requestAnimationFrame as requestAnimFrame
@@ -124,7 +126,6 @@ class _.animation.PhoriaAnimation
 
 
   pinMobileEvents:=>
-    @statusNode = $("body #status")
     unless window.DeviceOrientationEvent?
       @statusNode.text("DeviceOrientationEvent is not supported!")
     else
@@ -174,7 +175,20 @@ class _.animation.PhoriaAnimation
     dimension = Math.min(width, height)
     dimension = dimension - 100
 
-    $("body canvas").attr(
+    $("body canvas").css(
+      width: dimension,
+      height: dimension
+    )
+    @statusNode.text("#{height} #{width}")
+
+  pinScreenResize:=>
+    screen = $(window)
+    height = screen.height()
+    width  = screen.width()
+    dimension = Math.min(width, height)
+    dimension = dimension - 100
+
+    $("body canvas").css(
       width: dimension,
       height: dimension
     )
