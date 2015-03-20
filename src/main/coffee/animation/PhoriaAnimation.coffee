@@ -1,7 +1,18 @@
 class _.animation.PhoriaAnimation
   # define namespace for animation
   ns: {}
-
+  pos: {
+    alpha: .4
+    beta : .4
+    gamma: .4
+  }
+  dat: {
+    orientation:  true
+    rotationRate: false
+    acceleration: false
+    stop:         false
+    keepGoing:    false
+  }
   constructor: ->
     @statusNode = $("body #status")
     @setupNamespace()
@@ -9,6 +20,7 @@ class _.animation.PhoriaAnimation
 
     if $.browser.isMobile
       @pinMobileEvents()
+      @pinMobileGUIControls()
       setInterval(@pinMobileScreenResize, 20)
     else
       @pinGUIControls()
@@ -77,7 +89,10 @@ class _.animation.PhoriaAnimation
 
     fnAnimate = =>
       if !@ns.pause
-        @ns.cube.rotateY(.4 * Phoria.RADIANS)
+        if not $.browser.isMobile or @dat.keepGoing
+          @ns.cube.rotateX(@pos.alpha * Phoria.RADIANS)
+          @ns.cube.rotateY(@pos.beta * Phoria.RADIANS)
+          @ns.cube.rotateZ(@pos.gamma * Phoria.RADIANS)
         @ns.scene.modelView()
         @ns.renderer.render(@ns.scene)
       window.requestAnimFrame(fnAnimate)
@@ -110,62 +125,117 @@ class _.animation.PhoriaAnimation
 
   pinGUIControls: =>
     @ns.gui = new dat.GUI()
-    f = @ns.gui.addFolder('Camera Up')
-    f.add(@ns.scene.camera.up, "x")
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    f.add(@ns.scene.camera.up, "y")
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    f.add(@ns.scene.camera.up, "z")
-    .min(-10)
-    .max(10)
-    .step(0.1)
+    f = @ns.gui.addFolder('Rotation speed')
+    f.add(@pos, "alpha").min(-1).max(1).step(0.01)
+    f.add(@pos, "beta").min(-1).max(1).step(0.01)
+    f.add(@pos, "gamma").min(-1).max(1).step(0.01)
+
+  pinMobileGUIControls: =>
+    @ns.gui = new dat.GUI()
+    CB1Controller = @ns.gui.add(@dat, 'orientation').listen()
+    CB1Controller.onChange(=>
+      @dat.orientation = true
+      @dat.rotationRate = false
+      @dat.acceleration = false
+      @dat.stop         = false
+    )
+
+    CB2Controller = @ns.gui.add(@dat, 'rotationRate').listen()
+    CB2Controller.onChange(=>
+      @dat.orientation = false
+      @dat.rotationRate = true
+      @dat.acceleration = false
+      @dat.stop         = false
+    )
+
+    CB3Controller = @ns.gui.add(@dat, 'acceleration').listen()
+    CB3Controller.onChange(=>
+      @dat.orientation = false
+      @dat.rotationRate = false
+      @dat.acceleration = true
+      @dat.stop         = false
+    )
+
+    CB4Controller = @ns.gui.add(@dat, 'stop').listen()
+    CB4Controller.onChange(=>
+      @dat.orientation  = false
+      @dat.rotationRate = false
+      @dat.acceleration = false
+      @dat.stop         = true
+      @dat.keepGoing    = false
+    )
+
+    CB5Controller = @ns.gui.add(@dat, 'keepGoing').listen()
+    CB5Controller.onChange(=>
+      @dat.keepGoing  != @dat.keepGoing
+      @dat.stop       = false
+    )
 
 
   pinMobileEvents:=>
-    unless window.DeviceOrientationEvent?
-      @statusNode.text("DeviceOrientationEvent is not supported!")
+    unless window.DeviceOrientationEvent
+      alert("DeviceOrientationEvent is not supported!")
     else
       @statusNode.text("DeviceOrientationEvent SUPPORTED!")
-      lastEvent = Date.now()
 
       window.addEventListener('deviceorientation',
-        ((eventData)=>
-          if Date.now() - lastEvent > 100
+        ((event)=>
+          if @dat.orientation
+            alpha = (event.alpha - 180) / 180
+            beta  = event.beta  / 180
+            gamma = event.gamma / 90
 
-            gamma = eventData.gamma
+            @pos = {
+              alpha: alpha
+              beta : beta
+              gamma: gamma
+            }
 
-            if -60 < gamma < 0
-              lastEvent = Date.now()
-              beta = eventData.beta
-              beta = if beta < -90 then -90 else if beta > 90 then 90 else beta
-              beta = beta / 9
-              sign = beta / Math.abs(beta)
-              beta = sign * Math.floor(Math.abs(beta) * 10) / 10
+            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
+            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
+            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
+        ), false
+      )
 
-              @ns.scene.camera.up.x = beta
+    unless window.DeviceMotionEvent
+      alert("DeviceMotionEvent is not supported!")
+    else
+      @statusNode.text("DeviceMotionEvent SUPPORTED!")
 
-              gammaPrim = (-30 - gamma) / 2.5
-              @ns.scene.camera.position.y = gammaPrim
+      window.addEventListener('devicemotion',
+        ((event)=>
+          if @dat.rotationRate
+            alpha = event.rotationRate.alpha
+            beta  = event.rotationRate.beta
+            gamma = event.rotationRate.gamma
 
-              @statusNode.text("#{window.orientation}") # 0, 90 or 180 [orientation portrait//landscape]
+            @pos = {
+              alpha: alpha
+              beta : beta
+              gamma: gamma
+            }
 
+            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
+            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
+            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
 
+          if @dat.acceleration
+            x = event.acceleration.x
+            y = event.acceleration.y
+            z = event.acceleration.z
 
+            @pos = {
+              alpha: x
+              beta : y
+              gamma: z
+            }
 
-
-          # gamma is the left-to-right tilt in degrees, where right is positive
-          tiltLR = eventData.alpha.toFixed(2)
-          # beta is the front-to-back tilt in degrees, where front is positive
-          tiltFB = eventData.beta.toFixed(2)
-          # alpha is the compass direction the device is facing in degrees
-          dir = eventData.gamma.toFixed(2)
-          # call our orientation event handler
-
-          #@statusNode.text(JSON.stringify(eventData))
+            @statusNode.text("X: #{x.toFixed(2)} Y: #{y.toFixed(2)} Z: #{z.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(x * Phoria.RADIANS) unless isNaN(x)
+            @ns.cube.rotateY(y * Phoria.RADIANS) unless isNaN(y)
+            @ns.cube.rotateZ(z * Phoria.RADIANS) unless isNaN(z)
         ), false
       )
 
@@ -179,7 +249,6 @@ class _.animation.PhoriaAnimation
       width: dimension,
       height: dimension
     )
-    @statusNode.text("#{height} #{width}")
 
   pinScreenResize:=>
     screen = $(window)
@@ -192,4 +261,3 @@ class _.animation.PhoriaAnimation
       width: dimension,
       height: dimension
     )
-    @statusNode.text("#{height} #{width}")
