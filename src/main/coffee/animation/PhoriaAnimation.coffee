@@ -3,8 +3,15 @@ class _.animation.PhoriaAnimation
   ns: {}
   pos: {
     alpha: .4
-    beta : .2
-    gamma: .2
+    beta : .4
+    gamma: .4
+  }
+  dat: {
+    orientation:  true
+    rotationRate: false
+    acceleration: false
+    stop:         false
+    keepGoing:    false
   }
   constructor: ->
     @statusNode = $("body #status")
@@ -13,6 +20,7 @@ class _.animation.PhoriaAnimation
 
     if $.browser.isMobile
       @pinMobileEvents()
+      @pinMobileGUIControls()
       setInterval(@pinMobileScreenResize, 20)
     else
       @pinGUIControls()
@@ -81,9 +89,10 @@ class _.animation.PhoriaAnimation
 
     fnAnimate = =>
       if !@ns.pause
-        @ns.cube.rotateX(@pos.alpha * Phoria.RADIANS)
-        @ns.cube.rotateY(@pos.beta * Phoria.RADIANS)
-        @ns.cube.rotateZ(@pos.gamma * Phoria.RADIANS)
+        if not $.browser.isMobile or @dat.keepGoing
+          @ns.cube.rotateX(@pos.alpha * Phoria.RADIANS)
+          @ns.cube.rotateY(@pos.beta * Phoria.RADIANS)
+          @ns.cube.rotateZ(@pos.gamma * Phoria.RADIANS)
         @ns.scene.modelView()
         @ns.renderer.render(@ns.scene)
       window.requestAnimFrame(fnAnimate)
@@ -121,22 +130,112 @@ class _.animation.PhoriaAnimation
     f.add(@pos, "beta").min(-1).max(1).step(0.01)
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
 
+  pinMobileGUIControls: =>
+    @ns.gui = new dat.GUI()
+    CB1Controller = @ns.gui.add(@dat, 'orientation').listen()
+    CB1Controller.onChange(=>
+      @dat.orientation = true
+      @dat.rotationRate = false
+      @dat.acceleration = false
+      @dat.stop         = false
+    )
+
+    CB2Controller = @ns.gui.add(@dat, 'rotationRate').listen()
+    CB2Controller.onChange(=>
+      @dat.orientation = false
+      @dat.rotationRate = true
+      @dat.acceleration = false
+      @dat.stop         = false
+    )
+
+    CB3Controller = @ns.gui.add(@dat, 'acceleration').listen()
+    CB3Controller.onChange(=>
+      @dat.orientation = false
+      @dat.rotationRate = false
+      @dat.acceleration = true
+      @dat.stop         = false
+    )
+
+    CB4Controller = @ns.gui.add(@dat, 'stop').listen()
+    CB4Controller.onChange(=>
+      @dat.orientation  = false
+      @dat.rotationRate = false
+      @dat.acceleration = false
+      @dat.stop         = true
+      @dat.keepGoing    = false
+    )
+
+    CB5Controller = @ns.gui.add(@dat, 'keepGoing').listen()
+    CB5Controller.onChange(=>
+      @dat.keepGoing  != @dat.keepGoing
+      @dat.stop       = false
+    )
+
+
   pinMobileEvents:=>
-    unless window.DeviceOrientationEvent?
-      @statusNode.text("DeviceMotionEvent is not supported!")
+    unless window.DeviceOrientationEvent
+      alert("DeviceOrientationEvent is not supported!")
     else
-      @statusNode.text("DeviceMotionEvent SUPPORTED!")
+      @statusNode.text("DeviceOrientationEvent SUPPORTED!")
 
       window.addEventListener('deviceorientation',
         ((event)=>
-          alpha = (event.alpha - 180) / 180
-          beta  = event.beta  / 180
-          gamma = event.gamma / 90
+          if @dat.orientation
+            alpha = (event.alpha - 180) / 180
+            beta  = event.beta  / 180
+            gamma = event.gamma / 90
 
-          @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-          @ns.cube.rotateZ(beta  * Phoria.RADIANS) unless isNaN(beta)
-          @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNan(alpha)
-          @ns.cube.rotateY(gamma * Phoria.RADIANS) unless isNaN(gamma)
+            @pos = {
+              alpha: alpha
+              beta : beta
+              gamma: gamma
+            }
+
+            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
+            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
+            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
+        ), false
+      )
+
+    unless window.DeviceMotionEvent
+      alert("DeviceMotionEvent is not supported!")
+    else
+      @statusNode.text("DeviceMotionEvent SUPPORTED!")
+
+      window.addEventListener('devicemotion',
+        ((event)=>
+          if @dat.rotationRate
+            alpha = event.rotationRate.alpha
+            beta  = event.rotationRate.beta
+            gamma = event.rotationRate.gamma
+
+            @pos = {
+              alpha: alpha
+              beta : beta
+              gamma: gamma
+            }
+
+            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
+            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
+            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
+
+          if @dat.acceleration
+            x = event.acceleration.x
+            y = event.acceleration.y
+            z = event.acceleration.z
+
+            @pos = {
+              alpha: x
+              beta : y
+              gamma: z
+            }
+
+            @statusNode.text("X: #{x.toFixed(2)} Y: #{y.toFixed(2)} Z: #{z.toFixed(2)} Orientation: #{window.orientation}")
+            @ns.cube.rotateX(x * Phoria.RADIANS) unless isNaN(x)
+            @ns.cube.rotateY(y * Phoria.RADIANS) unless isNaN(y)
+            @ns.cube.rotateZ(z * Phoria.RADIANS) unless isNaN(z)
         ), false
       )
 
