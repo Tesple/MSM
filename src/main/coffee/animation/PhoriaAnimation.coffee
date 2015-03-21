@@ -97,27 +97,6 @@ class _.animation.PhoriaAnimation
         @ns.renderer.render(@ns.scene)
       window.requestAnimFrame(fnAnimate)
 
-    fnPositionLookAt = (forward, heading, lookAt)=>
-      pos = vec3.fromValues(@ns.scene.camera.position.x, @ns.scene.camera.position.y, @ns.scene.camera.position.z)
-      ca  = Math.cos(heading)
-      sa = Math.sin(heading);
-      rx = forward[0] * ca - forward[2] * sa
-      rz = forward[0] * sa + forward[2] * ca
-      forward[0] = rx
-      forward[2] = rz
-      vec3.add(pos, pos, forward)
-      @ns.scene.camera.position.x = pos[0]
-      @ns.scene.camera.position.y = pos[1]
-      @ns.scene.camera.position.z = pos[2]
-
-      rx = lookAt[0] * ca - lookAt[2] * sa
-      rz = lookAt[0] * sa + lookAt[2] * ca
-      vec3.add(pos, pos, vec3.fromValues(rx, lookAt[1], rz))
-
-      @ns.scene.camera.lookat.x = pos[0]
-      @ns.scene.camera.lookat.y = pos[1]
-      @ns.scene.camera.lookat.z = pos[2]
-
     @ns.scene.perspective.fov = 12
 
     window.requestAnimFrame(fnAnimate)
@@ -127,48 +106,34 @@ class _.animation.PhoriaAnimation
     @ns.gui = new dat.GUI()
     f = @ns.gui.addFolder('Rotation speed')
     f.add(@pos, "alpha").min(-1).max(1).step(0.01)
-    f.add(@pos, "beta").min(-1).max(1).step(0.01)
+    f.add(@pos, "beta" ).min(-1).max(1).step(0.01)
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
 
   pinMobileGUIControls: =>
     @ns.gui = new dat.GUI()
-    CB1Controller = @ns.gui.add(@dat, 'orientation').listen()
-    CB1Controller.onChange(=>
-      @dat.orientation = true
-      @dat.rotationRate = false
-      @dat.acceleration = false
-      @dat.stop         = false
-    )
+    changeValue = (v1, v2, v3, v4, v5)=>
+      @dat.orientation  = v1
+      @dat.rotationRate = v2
+      @dat.acceleration = v3
+      @dat.stop         = v4
+      @dat.keepGoing    = v5
 
-    CB2Controller = @ns.gui.add(@dat, 'rotationRate').listen()
-    CB2Controller.onChange(=>
-      @dat.orientation = false
-      @dat.rotationRate = true
-      @dat.acceleration = false
-      @dat.stop         = false
+    @ns.gui.add(@dat, 'orientation').listen().onChange(
+      => changeValue(true, false, false, false, @dat.keepGoing)
     )
-
-    CB3Controller = @ns.gui.add(@dat, 'acceleration').listen()
-    CB3Controller.onChange(=>
-      @dat.orientation = false
-      @dat.rotationRate = false
-      @dat.acceleration = true
-      @dat.stop         = false
+    @ns.gui.add(@dat, 'rotationRate').listen().onChange(
+      => changeValue(false, true, false, false, @dat.keepGoing)
     )
-
-    CB4Controller = @ns.gui.add(@dat, 'stop').listen()
-    CB4Controller.onChange(=>
-      @dat.orientation  = false
-      @dat.rotationRate = false
-      @dat.acceleration = false
-      @dat.stop         = true
-      @dat.keepGoing    = false
+    @ns.gui.add(@dat, 'acceleration').listen().onChange(
+      => changeValue(false, false, true, false, @dat.keepGoing)
     )
-
-    CB5Controller = @ns.gui.add(@dat, 'keepGoing').listen()
-    CB5Controller.onChange(=>
-      @dat.keepGoing  != @dat.keepGoing
-      @dat.stop       = false
+    @ns.gui.add(@dat, 'stop').listen().onChange(
+      => changeValue(false, false, false, true, false)
+    )
+    @ns.gui.add(@dat, 'keepGoing').listen().onChange(
+      =>
+        @dat.keepGoing != @dat.keepGoing
+        changeValue(@dat.orientation, @dat.rotationRate, @dat.acceleration, false, @dat.keepGoing)
     )
 
 
@@ -185,16 +150,8 @@ class _.animation.PhoriaAnimation
             beta  = event.beta  / 180
             gamma = event.gamma / 90
 
-            @pos = {
-              alpha: alpha
-              beta : beta
-              gamma: gamma
-            }
-
             @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
-            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
-            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
+            @evalAnimationUpdate(alpha, beta, gamma)
         ), false
       )
 
@@ -210,34 +167,29 @@ class _.animation.PhoriaAnimation
             beta  = event.rotationRate.beta
             gamma = event.rotationRate.gamma
 
-            @pos = {
-              alpha: alpha
-              beta : beta
-              gamma: gamma
-            }
-
             @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-            @ns.cube.rotateX(alpha * Phoria.RADIANS) unless isNaN(alpha)
-            @ns.cube.rotateY(beta  * Phoria.RADIANS) unless isNaN(beta)
-            @ns.cube.rotateZ(gamma * Phoria.RADIANS) unless isNaN(gamma)
+            @evalAnimationUpdate(alpha, beta, gamma)
 
           if @dat.acceleration
             x = event.acceleration.x
             y = event.acceleration.y
             z = event.acceleration.z
 
-            @pos = {
-              alpha: x
-              beta : y
-              gamma: z
-            }
-
             @statusNode.text("X: #{x.toFixed(2)} Y: #{y.toFixed(2)} Z: #{z.toFixed(2)} Orientation: #{window.orientation}")
-            @ns.cube.rotateX(x * Phoria.RADIANS) unless isNaN(x)
-            @ns.cube.rotateY(y * Phoria.RADIANS) unless isNaN(y)
-            @ns.cube.rotateZ(z * Phoria.RADIANS) unless isNaN(z)
+            @evalAnimationUpdate(x, y, z)
         ), false
       )
+
+  evalAnimationUpdate: (alpha, beta, gamma)=>
+    unless isNaN(alpha)
+      @ns.cube.rotateX(alpha * Phoria.RADIANS)
+      @pos.alpha = alpha
+    unless isNaN(alpha)
+      @ns.cube.rotateY(beta  * Phoria.RADIANS)
+      @pos.beta  = beta
+    unless isNaN(alpha)
+      @ns.cube.rotateZ(gamma * Phoria.RADIANS)
+      @pos.gamma = gamma
 
   pinMobileScreenResize:=>
     height = screen.availHeight
@@ -246,18 +198,18 @@ class _.animation.PhoriaAnimation
     dimension = dimension - 100
 
     $("body canvas").css(
-      width: dimension,
+      width:  dimension,
       height: dimension
     )
 
   pinScreenResize:=>
-    screen = $(window)
-    height = screen.height()
-    width  = screen.width()
+    screen    = $(window)
+    height    = screen.height()
+    width     = screen.width()
     dimension = Math.min(width, height)
     dimension = dimension - 100
 
     $("body canvas").css(
-      width: dimension,
+      width:  dimension,
       height: dimension
     )
