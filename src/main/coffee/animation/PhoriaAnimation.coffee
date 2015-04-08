@@ -12,6 +12,7 @@ class _.animation.PhoriaAnimation
     acceleration: false
     stop:         false
     keepGoing:    false
+    nature:       true
   }
   constructor: ->
     @statusNode = $("body #status")
@@ -54,11 +55,12 @@ class _.animation.PhoriaAnimation
     @ns.lookAt   = vec3.fromValues(0, -5, 1)
 
   loadBitmaps:=>
-     for i in [0...6]
+    ext = if @dat.nature then ".jpg" else ".png"
+    for i in [0...6]
        @ns.bitmaps.push(new Image())
-       @ns.loader.addImage(@ns.bitmaps[i], 'images/texture'+i+'.png')
+       @ns.loader.addImage(@ns.bitmaps[i], 'images/texture' + i + ext )
 
-     @ns.loader.onLoadCallback(@initPhoria)
+    @ns.loader.onLoadCallback(@initPhoria)
 
   initPhoria: =>
     @ns.scene.camera.position = {
@@ -108,6 +110,8 @@ class _.animation.PhoriaAnimation
     f.add(@pos, "alpha").min(-1).max(1).step(0.01)
     f.add(@pos, "beta" ).min(-1).max(1).step(0.01)
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
+    f = @ns.gui.addFolder('Images type')
+    f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
 
   pinMobileGUIControls: =>
     @ns.gui = new dat.GUI()
@@ -118,19 +122,28 @@ class _.animation.PhoriaAnimation
       @dat.stop         = v4
       @dat.keepGoing    = v5
 
-    @ns.gui.add(@dat, 'orientation').listen().onChange(
-      => changeValue(true, false, false, false, @dat.keepGoing)
+    f = @ns.gui.addFolder('Gyroscope')
+    f.add(@dat, 'orientation').listen().onChange(
+      =>
+        changeValue(true, false, false, false, @dat.keepGoing)
+        @pinMobileEvents()
     )
-    @ns.gui.add(@dat, 'rotationRate').listen().onChange(
-      => changeValue(false, true, false, false, @dat.keepGoing)
+    f.add(@dat, 'rotationRate').listen().onChange(
+      =>
+        changeValue(false, true, false, false, @dat.keepGoing)
+        @pinMobileEvents()
     )
-    @ns.gui.add(@dat, 'acceleration').listen().onChange(
-      => changeValue(false, false, true, false, @dat.keepGoing)
+    f.add(@dat, 'acceleration').listen().onChange(
+      =>
+        changeValue(false, false, true, false, @dat.keepGoing)
+        @pinMobileEvents()
     )
-    @ns.gui.add(@dat, 'stop').listen().onChange(
+
+    f = @ns.gui.addFolder('Motion')
+    f.add(@dat, 'stop').listen().onChange(
       => changeValue(false, false, false, true, false)
     )
-    @ns.gui.add(@dat, 'keepGoing').listen().onChange(
+    f.add(@dat, 'keepGoing').listen().onChange(
       =>
         @dat.keepGoing != @dat.keepGoing
         changeValue(@dat.orientation, @dat.rotationRate, @dat.acceleration, false, @dat.keepGoing)
@@ -138,47 +151,51 @@ class _.animation.PhoriaAnimation
 
 
   pinMobileEvents:=>
-    unless window.DeviceOrientationEvent
-      alert("DeviceOrientationEvent is not supported!")
-    else
-      @statusNode.text("DeviceOrientationEvent SUPPORTED!")
+    @count = 0
+    window.removeEventListener("deviceorientation", @deviceOrientationListener, false)
+    window.removeEventListener("devicemotion",      @deviceMotionListener,      false)
+    if @dat.orientation
+      unless window.DeviceOrientationEvent
+        alert("DeviceOrientationEvent is not supported!")
+      else
+        window.addEventListener('deviceorientation', @deviceOrientationListener, false)
 
-      window.addEventListener('deviceorientation',
-        ((event)=>
-          if @dat.orientation
-            alpha = (event.alpha - 180) / 180
-            beta  = event.beta  / 180
-            gamma = event.gamma / 90
+    if @dat.rotationRate or @dat.acceleration
+      unless window.DeviceMotionEvent
+        alert "DeviceMotionEvent is not supported!"
+      else
+        window.addEventListener('devicemotion', @deviceMotionListener, false)
 
-            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-            @evalAnimationUpdate(alpha, beta, gamma)
-        ), false
-      )
+  deviceOrientationListener: (event)=>
+    if @dat.orientation
+      alpha = (event.alpha - 180) / 180
+      beta  = event.beta  / 180
+      gamma = event.gamma / 90
 
-    unless window.DeviceMotionEvent
-      alert("DeviceMotionEvent is not supported!")
-    else
-      @statusNode.text("DeviceMotionEvent SUPPORTED!")
+      @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
+      @evalAnimationUpdate(alpha, beta, gamma)
 
-      window.addEventListener('devicemotion',
-        ((event)=>
-          if @dat.rotationRate
-            alpha = event.rotationRate.alpha
-            beta  = event.rotationRate.beta
-            gamma = event.rotationRate.gamma
+  deviceMotionListener: (event)=>
+    if @dat.rotationRate
+      alpha = event.rotationRate.alpha
+      beta  = event.rotationRate.beta
+      gamma = event.rotationRate.gamma
+      if @count is 0
+        console.warn event.rotationRate
+        @count++
+      @statusNode.text("Alpha: #{alpha} Beta: #{beta} Gamma: #{gamma} Orientation: #{window.orientation}")
+      @evalAnimationUpdate(alpha, beta, gamma)
 
-            @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-            @evalAnimationUpdate(alpha, beta, gamma)
+    if @dat.acceleration
+      x = event.acceleration.x
+      y = event.acceleration.y
+      z = event.acceleration.z
+      if @count is 0
+        console.warn event.acceleration
+        @count++
+      @statusNode.text("X: #{x} Y: #{y} Z: #{z} Orientation: #{window.orientation}")
+      @evalAnimationUpdate(x, y, z)
 
-          if @dat.acceleration
-            x = event.acceleration.x
-            y = event.acceleration.y
-            z = event.acceleration.z
-
-            @statusNode.text("X: #{x.toFixed(2)} Y: #{y.toFixed(2)} Z: #{z.toFixed(2)} Orientation: #{window.orientation}")
-            @evalAnimationUpdate(x, y, z)
-        ), false
-      )
 
   evalAnimationUpdate: (alpha, beta, gamma)=>
     unless isNaN(alpha)
