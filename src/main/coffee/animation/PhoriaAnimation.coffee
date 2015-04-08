@@ -151,7 +151,6 @@ class _.animation.PhoriaAnimation
 
 
   pinMobileEvents:=>
-    @count = 0
     window.removeEventListener("deviceorientation", @deviceOrientationListener, false)
     window.removeEventListener("devicemotion",      @deviceMotionListener,      false)
     if @dat.orientation
@@ -180,9 +179,6 @@ class _.animation.PhoriaAnimation
       alpha = event.rotationRate.alpha
       beta  = event.rotationRate.beta
       gamma = event.rotationRate.gamma
-      if @count is 0
-        console.warn event.rotationRate
-        @count++
       @statusNode.text("Alpha: #{alpha} Beta: #{beta} Gamma: #{gamma} Orientation: #{window.orientation}")
       @evalAnimationUpdate(alpha, beta, gamma)
 
@@ -190,9 +186,6 @@ class _.animation.PhoriaAnimation
       x = event.acceleration.x
       y = event.acceleration.y
       z = event.acceleration.z
-      if @count is 0
-        console.warn event.acceleration
-        @count++
       @statusNode.text("X: #{x} Y: #{y} Z: #{z} Orientation: #{window.orientation}")
       @evalAnimationUpdate(x, y, z)
 
