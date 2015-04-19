@@ -56,7 +56,7 @@ class _.animation.PhoriaAnimation
   loadBitmaps:=>
      for i in [0...6]
        @ns.bitmaps.push(new Image())
-       @ns.loader.addImage(@ns.bitmaps[i], 'images/texture'+i+'.png')
+       @ns.loader.addImage(@ns.bitmaps[i], 'images/texture'+i+'.jpg')
 
      @ns.loader.onLoadCallback(@initPhoria)
 
@@ -69,7 +69,6 @@ class _.animation.PhoriaAnimation
     @ns.scene.perspective.aspect = @ns.canvas.width / @ns.canvas.height
     @ns.scene.viewport.width     = @ns.canvas.width
     @ns.scene.viewport.height    = @ns.canvas.height
-
     for i in [0...6]
       @ns.cube.textures.push(@ns.bitmaps[i])
       @ns.cube.polygons[i].texture = i
