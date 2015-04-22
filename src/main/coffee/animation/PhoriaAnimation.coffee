@@ -15,6 +15,7 @@ class _.animation.PhoriaAnimation
     nature:       true
   }
   constructor: ->
+    window.an = @
     @statusNode = $("body #status")
     @setupNamespace()
     @loadBitmaps()
@@ -22,11 +23,8 @@ class _.animation.PhoriaAnimation
     if $.browser.isMobile
       @pinMobileEvents()
       @pinMobileGUIControls()
-      setInterval(@pinMobileScreenResize, 20)
     else
       @pinGUIControls()
-      $(window).on("resize",@pinScreenResize)
-      @pinScreenResize()
 
   setupNamespace:=>
     # define requestAnimationFrame as requestAnimFrame
@@ -200,26 +198,3 @@ class _.animation.PhoriaAnimation
     unless isNaN(alpha)
       @ns.cube.rotateZ(gamma * Phoria.RADIANS)
       @pos.gamma = gamma
-
-  pinMobileScreenResize:=>
-    height = screen.availHeight
-    width  = screen.availWidth
-    dimension = Math.min(width, height)
-    dimension = dimension - 100
-
-    $("body canvas").css(
-      width:  dimension,
-      height: dimension
-    )
-
-  pinScreenResize:=>
-    screen    = $(window)
-    height    = screen.height()
-    width     = screen.width()
-    dimension = Math.min(width, height)
-    dimension = dimension - 100
-
-    $("body canvas").css(
-      width:  dimension,
-      height: dimension
-    )
