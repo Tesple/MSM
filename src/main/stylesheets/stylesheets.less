@@ -1,10 +1,15 @@
 @yellow:  #FFDD00;
 @black:   #000000;
 @white:   #FFFFFF;
+@grey:    #1A1A1A;
 
 * {
   box-sizing: border-box;
   font-family: 'Roboto Condensed';
+}
+
+body {
+  background-color: @yellow;
 }
 
 #splash, #phoria, #panorama {
@@ -17,12 +22,25 @@
   z-index: 0;
 }
 
+#go-back {
+  z-index: 3;
+  position: absolute;
+  cursor: pointer;
+  color: @grey;
+}
+
 .opened {
   z-index: 2 !important;
 }
 
 #splash {
-  z-index:1;
+  z-index: 4;
+  &.opened {
+    z-index: 4 !important;
+  }
+  &.hidden {
+    z-index: 1 !important;
+  }
   #splash-container {
     width: 80vw;
     height: 80vh;
@@ -95,6 +113,38 @@
       }
     }
   }
+
+  #phoria {
+    canvas {
+      width: 90vh;
+      height: 90vh;
+      max-width: 46vw;
+      max-height: 46vw;
+    }
+  }
+  .dg.ac .dg.main.a {
+    width: 25vw !important;
+    margin-right: 0 !important;
+    .folder {
+      .dg ul {
+        font-size: 2.5vw;
+        li {
+          height: 3.5vw !important;
+          line-height: 3vw !important;
+        }
+      }
+    }
+    .close-button {
+      font-size: 2.5vw;
+      height: 3.5vw !important;
+      line-height: 3vw !important;
+      width: 25vw !important;
+    }
+  }
+
+  #go-back {
+    font-size: 2.5vw;
+  }
 }
 
 @media (orientation: portrait) {
@@ -153,6 +203,39 @@
       }
     }
   }
+  #phoria {
+    canvas {
+      width: 48vh;
+      height: 48vh;
+    }
+  }
+  .dg.ac {
+    top: 50vh !important;
+    .dg.main.a {
+      width: 60vw !important;
+      float: none !important;
+      margin: 0 auto;
+      .folder {
+        .dg ul {
+          font-size: 3vh;
+          li {
+            height: 4vh !important;
+            line-height: 3.5vh !important;
+          }
+        }
+      }
+      .close-button {
+        font-size: 2.5vh;
+        height: 3.5vh !important;
+        line-height: 3vh !important;
+        width: 60vw !important;
+      }
+    }
+  }
+
+  #go-back {
+    font-size: 2.5vh;
+  }
 }
 
 #phoria {
@@ -162,12 +245,3 @@
 #panorama {
 
 }
-
-@keyframes open       {0%{transform:  scale(1,0);}        100%{transform: scale(1,1);}}
-@keyframes squeeze    {0%{height:     400px;}             100%{height:    120px;}}
-@keyframes fadeOut    {0%{opacity:    1;}                 100%{opacity:   0;}}
-@keyframes fadeIn     {0%{opacity:    0;}                 100%{opacity:   1;}}
-@keyframes slideLeft  {0%{transform:  translateX(120%);}  100%{transform: translateX(0%);}}
-@keyframes slideRight {0%{transform:  translateX(-120%);} 100%{transform: translateX(0%);}}
-@keyframes moveUp     {0%{transform:  translateY(0px);}   100%{transform: translateY(-170px);}}
-@keyframes zoomIn     {0%{transform:  scale(0);}          100%{transform: scale(1);}}
