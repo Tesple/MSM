@@ -146,6 +146,8 @@ class _.animation.PhoriaAnimation
         @dat.keepGoing != @dat.keepGoing
         changeValue(@dat.orientation, @dat.rotationRate, @dat.acceleration, false, @dat.keepGoing)
     )
+    f = @ns.gui.addFolder('Images type')
+    f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
 
 
   pinMobileEvents:=>
