@@ -4,10 +4,38 @@
     <meta charset="UTF-8">
     <title>MSM - 3d</title>
     <link rel="stylesheet" type="text/css" href="MSM-1.0-SNAPSHOT.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Vidaloka' rel='stylesheet' type='text/css'>
     <script src="MSM-1.0-SNAPSHOT.js" type="text/javascript"></script>
 </head>
 <body>
-    <canvas id="canvas" width="600" height="600"></canvas>
-    <div id="status"></div>
+    <div id="splash">
+        <div id="splash-container">
+            <div id="splash-left">
+                <h2>
+                    <span class="sp-top">Mobilne</span>
+                    <span class="sp-mid">Systemy</span>
+                    <span class="sp-bottom">Webowe</span>
+                </h2>
+            </div>
+            <div id="splash-right">
+                <h2>
+                    <span class="sp-top" id="open-phoria">Phoria cube</span>
+                    <span class="sp-mid" id="open-panorama">Panorama 3D</span>
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div id="phoria">
+        <canvas id="canvas" width="600" height="600"></canvas>
+        <div id="status"></div>
+    </div>
+    <div id="panorama">
+    </div>
+
+    <div id="go-back">
+        &larr; back
+    </div>
+
 </body>
 </html>

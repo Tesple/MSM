@@ -1,0 +1,247 @@
+@yellow:  #FFDD00;
+@black:   #000000;
+@white:   #FFFFFF;
+@grey:    #1A1A1A;
+
+* {
+  box-sizing: border-box;
+  font-family: 'Roboto Condensed';
+}
+
+body {
+  background-color: @yellow;
+}
+
+#splash, #phoria, #panorama {
+  height: 100vh;
+  background-color: @yellow;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  z-index: 0;
+}
+
+#go-back {
+  z-index: 3;
+  position: absolute;
+  cursor: pointer;
+  color: @grey;
+}
+
+.opened {
+  z-index: 2 !important;
+}
+
+#splash {
+  z-index: 4;
+  &.opened {
+    z-index: 4 !important;
+  }
+  &.hidden {
+    z-index: 1 !important;
+  }
+  #splash-container {
+    width: 80vw;
+    height: 80vh;
+    margin: 10vh 10vw;
+    text-align: center;
+
+    #splash-left, #splash-right {
+      overflow: hidden;
+      text-align: center;
+      border:1px solid @black;
+      padding:10px;
+    }
+  }
+}
+
+@media (orientation: landscape) {
+  #splash {
+    #splash-container {
+      #splash-left, #splash-right {
+        width: calc(40vw - 1px);
+        display: inline-block;
+        vertical-align: middle;
+      }
+      #splash-left {
+        border: none;
+        border-right: .75vw solid @black;
+        h2 {
+          span {
+            display: block;
+            margin-right: 1vw;
+          }
+          text-align: right;
+          .sp-top {
+            font-size: 6vw;
+            color: @black;
+          }
+          .sp-mid {
+            font-size: 5vw;
+            color: @white;
+          }
+          .sp-bottom {
+            font-size: 4vw;
+            color: @black;
+          }
+        }
+      }
+      #splash-right {
+        border: none;
+        border-left: .35vw solid @white;
+        padding: 4vw 0;
+        h2 {
+          span {
+            display: block;
+            margin: 1vw;
+            color: @white;
+            padding: .25vw .25vw;
+            border-radius: .5vw;
+            background-color: @black;
+            width: 18vw;
+            font-family: "Vidaloka";
+            cursor: pointer;
+          }
+          .sp-top {
+            font-size: 2.25vw;
+          }
+          .sp-mid {
+            font-size: 2.25vw;
+          }
+        }
+      }
+    }
+  }
+
+  #phoria {
+    canvas {
+      width: 90vh;
+      height: 90vh;
+      max-width: 46vw;
+      max-height: 46vw;
+    }
+  }
+  .dg.ac .dg.main.a {
+    width: 25vw !important;
+    margin-right: 0 !important;
+    .folder {
+      .dg ul {
+        font-size: 2.5vw;
+        li {
+          height: 3.5vw !important;
+          line-height: 3vw !important;
+        }
+      }
+    }
+    .close-button {
+      font-size: 2.5vw;
+      height: 3.5vw !important;
+      line-height: 3vw !important;
+      width: 25vw !important;
+    }
+  }
+
+  #go-back {
+    font-size: 2.5vw;
+  }
+}
+
+@media (orientation: portrait) {
+  #splash {
+    #splash-container {
+      #splash-left, #splash-right {
+        width: 80vw;
+      }
+      #splash-left {
+        border: none;
+        border-bottom: 1.5vw solid @black;
+        h2 {
+          span {
+            display: block;
+          }
+          .sp-top {
+            font-size: 18vw;
+            color: @black;
+          }
+          .sp-mid {
+            font-size: 14vw;
+            color: @white;
+          }
+          .sp-bottom {
+            font-size: 16vw;
+            color: @black;
+          }
+        }
+      }
+      #splash-right {
+        border: none;
+        border-top: .7vw solid @white;
+        margin-top: .5vw;
+        width: 60vw;
+        margin-left: 10vw;
+        text-align: center;
+        h2 {
+          span {
+            display: block;
+            margin: 3vw;
+            color: @white;
+            padding: .25vw .25vw;
+            border-radius: .5vw;
+            background-color: @black;
+            width: 54vw;
+            font-family: "Vidaloka";
+            cursor: pointer;
+          }
+          .sp-top {
+            font-size: 6.75vw;
+          }
+          .sp-mid {
+            font-size: 6.75vw;
+          }
+        }
+      }
+    }
+  }
+  #phoria {
+    canvas {
+      width: 48vh;
+      height: 48vh;
+    }
+  }
+  .dg.ac {
+    top: 50vh !important;
+    .dg.main.a {
+      width: 60vw !important;
+      float: none !important;
+      margin: 0 auto;
+      .folder {
+        .dg ul {
+          font-size: 3vh;
+          li {
+            height: 4vh !important;
+            line-height: 3.5vh !important;
+          }
+        }
+      }
+      .close-button {
+        font-size: 2.5vh;
+        height: 3.5vh !important;
+        line-height: 3vh !important;
+        width: 60vw !important;
+      }
+    }
+  }
+
+  #go-back {
+    font-size: 2.5vh;
+  }
+}
+
+#phoria {
+  text-align: center;
+}
+
+#panorama {
+
+}
