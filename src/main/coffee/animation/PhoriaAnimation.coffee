@@ -194,9 +194,9 @@ class _.animation.PhoriaAnimation
     unless isNaN(alpha)
       @ns.cube.rotateX(alpha * Phoria.RADIANS)
       @pos.alpha = alpha
-    unless isNaN(alpha)
+    unless isNaN(beta)
       @ns.cube.rotateY(beta  * Phoria.RADIANS)
       @pos.beta  = beta
-    unless isNaN(alpha)
+    unless isNaN(gamma)
       @ns.cube.rotateZ(gamma * Phoria.RADIANS)
       @pos.gamma = gamma
