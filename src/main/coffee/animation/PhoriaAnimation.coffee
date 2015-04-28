@@ -103,6 +103,7 @@ class _.animation.PhoriaAnimation
 
 
   pinGUIControls: =>
+    obj = {options: (-> alert "options")}
     @ns.gui = new dat.GUI()
     f = @ns.gui.addFolder('Rotation speed')
     f.add(@pos, "alpha").min(-1).max(1).step(0.01)
@@ -110,8 +111,10 @@ class _.animation.PhoriaAnimation
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
     f = @ns.gui.addFolder('Images type')
     f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
+    @ns.gui.add(obj, "options")
 
   pinMobileGUIControls: =>
+    obj = {options: (-> alert "options")}
     @ns.gui = new dat.GUI()
     changeValue = (v1, v2, v3, v4, v5)=>
       @dat.orientation  = v1
@@ -148,6 +151,7 @@ class _.animation.PhoriaAnimation
     )
     f = @ns.gui.addFolder('Images type')
     f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
+    @ns.gui.add(obj, "options")
 
 
   pinMobileEvents:=>
