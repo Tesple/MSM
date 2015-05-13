@@ -37,6 +37,7 @@
                         <file>Sandbox.js</file>
                         <!-- Auxilary libs-->
                         <file>jquery.min.js</file>
+                        <file>jquery.easyModal</file>
                         <file>dat.gui.min.js</file>
                         <file>gl-matrix.js</file>
                         <file>phoria-min.js</file>

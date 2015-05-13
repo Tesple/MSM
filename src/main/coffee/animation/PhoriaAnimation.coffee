@@ -3,7 +3,7 @@ class _.animation.PhoriaAnimation
   ns: {}
   pos: {
     alpha: .4
-    beta : .4
+    beta : -.4
     gamma: .4
   }
   dat: {
@@ -12,7 +12,7 @@ class _.animation.PhoriaAnimation
     acceleration: false
     stop:         false
     keepGoing:    false
-    nature:       true
+    nature:       false
   }
   constructor: ->
     window.an = @
@@ -103,18 +103,18 @@ class _.animation.PhoriaAnimation
 
 
   pinGUIControls: =>
-    obj = {options: (-> alert "options")}
+    obj = {customize: (-> alert "options")}
     @ns.gui = new dat.GUI()
     f = @ns.gui.addFolder('Rotation speed')
     f.add(@pos, "alpha").min(-1).max(1).step(0.01)
     f.add(@pos, "beta" ).min(-1).max(1).step(0.01)
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
-    f = @ns.gui.addFolder('Images type')
+    f = @ns.gui.addFolder('Options')
     f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
-    @ns.gui.add(obj, "options")
+    f.add(obj, "customize")
 
   pinMobileGUIControls: =>
-    obj = {options: (-> alert "options")}
+    obj = {customize: (-> alert "options")}
     @ns.gui = new dat.GUI()
     changeValue = (v1, v2, v3, v4, v5)=>
       @dat.orientation  = v1
@@ -149,9 +149,9 @@ class _.animation.PhoriaAnimation
         @dat.keepGoing != @dat.keepGoing
         changeValue(@dat.orientation, @dat.rotationRate, @dat.acceleration, false, @dat.keepGoing)
     )
-    f = @ns.gui.addFolder('Images type')
+    f = @ns.gui.addFolder('Options')
     f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
-    @ns.gui.add(obj, "options")
+    f.add(obj, "customize")
 
 
   pinMobileEvents:=>

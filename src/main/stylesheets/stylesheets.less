@@ -55,6 +55,55 @@ body {
     }
   }
 }
+#options-modal {
+    z-index: -10;
+    background: @grey;
+    color: @white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding-top: 2vw;
+    .table {
+        display: inline-block;
+        width: 40vw;
+        height: 30vw;
+        border: 1px solid #000;
+        padding-top: 2vw;
+    }
+    .row {
+        display: block;
+        height: 9vw;
+    }
+    .cell{
+        display: inline-block;
+        width: 8vw;
+        line-height: 8vw;
+        font-size: 3vw;
+        &.bordered {
+            border: .25vw solid @white;
+        }
+    }
+    .files-list {
+        display: inline-block;
+        font-size: 3vw;
+        width: 56vw;
+        input[type=file] {
+            max-width: 37vw;
+            font-size: 2.25vw;
+        }
+        input[type=button], input[type=submit] {
+            max-width: 37vw;
+            font-size: 2.5vw;
+            margin-top: 2vw;
+            margin-bottom: 2vw;
+        }
+    }
+
+    .table, .files-list {
+        vertical-align: top;
+    }
+}
 
 @media (orientation: landscape) {
   #splash {
@@ -123,16 +172,50 @@ body {
     }
   }
   .dg.ac .dg.main.a {
-    width: 25vw !important;
+    width: 30vw !important;
     margin-right: 0 !important;
     .folder {
-      .dg ul {
-        font-size: 2.5vw;
-        li {
-          height: 3.5vw !important;
-          line-height: 3vw !important;
+        .dg ul {
+          font-size: 3vw;
+          &.closed li:not(.title) {
+            display: none;
+          }
+          &.closed li.title {
+            background-image: none;
+            &:before {
+                content: "+";
+                position: absolute;
+                left: 2vw;
+            }
+          }
+
+          li {
+            height: 4.5vw !important;
+            padding: 0.75vw;
+            position: relative;
+            &.title {
+                background-image: none;
+                &:before {
+                    content: "-";
+                    position: absolute;
+                    left: 2vw;
+                }
+            }
+            line-height: 3.25vw !important;
+          }
         }
       }
+    .cr.boolean {
+        .property-name {
+          width: 100%;
+          font-size: 2.5vw;
+          height: 3.5vw !important;
+          line-height: 3vw !important;
+          text-align: left;
+        }
+        .c {
+            display: none;
+        }
     }
     .cr.function {
       height: 3.5vw !important;
@@ -148,12 +231,15 @@ body {
           display: none;
         }
       }
+      .cr.number {
+       .c {}
+      }
     }
     .close-button {
       font-size: 2.5vw;
       height: 3.5vw !important;
       line-height: 3vw !important;
-      width: 25vw !important;
+      width: 30vw !important;
     }
   }
 
@@ -233,8 +319,30 @@ body {
       .folder {
         .dg ul {
           font-size: 3vh;
+          &.closed li:not(.title) {
+            display: none;
+          }
+          &.closed li.title {
+            background-image: none;
+            &:before {
+                content: "+";
+                position: absolute;
+                left: 2vh;
+            }
+          }
+
           li {
-            height: 4vh !important;
+            height: 5vh !important;
+            padding: 0.75vh;
+            position: relative;
+            &.title {
+                background-image: none;
+                &:before {
+                    content: "-";
+                    position: absolute;
+                    left: 2vh;
+                }
+            }
             line-height: 3.5vh !important;
           }
         }
@@ -254,6 +362,19 @@ body {
           }
         }
       }
+
+    .cr.boolean {
+        .property-name {
+          width: 100%;
+          font-size: 3vh;
+          height: 4vh !important;
+          line-height: 3.5vh !important;
+          text-align: left;
+        }
+        .c {
+            display: none;
+        }
+    }
       .close-button {
         font-size: 2.5vh;
         height: 3.5vh !important;
