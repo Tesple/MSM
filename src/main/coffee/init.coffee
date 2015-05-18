@@ -1,5 +1,6 @@
 class _.Init
   phoriaStarted: false
+  panoramaStarted: false
 
   constructor: ()->
       @plugNaviListeners()
@@ -29,6 +30,9 @@ class _.Init
       elements.removeClass("opened")
       panorama.addClass("opened")
       splash.addClass("hidden")
+      unless @phoriaStarted
+        panoramaAnimation = new _.animation.Panorama()
+        @anoramaStarted = true
       datGUI   = $(".dg.ac").removeClass("opened")
       localStorage.setItem("lastOpened", "panorama")
     )

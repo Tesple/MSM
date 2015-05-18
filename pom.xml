@@ -49,6 +49,7 @@
                         <file>jUtils.js</file>
                         <!-- others -->
                         <file>animation/PhoriaAnimation.js</file>
+                        <file>animation/Panorama.js</file>
                         <file>init.js</file>
                     </jsAggregationFiles>
                 </configuration>
