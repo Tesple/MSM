@@ -32,7 +32,7 @@ class _.Init
       splash.addClass("hidden")
       unless @phoriaStarted
         panoramaAnimation = new _.animation.Panorama()
-        @anoramaStarted = true
+        @panoramaStarted = true
       datGUI   = $(".dg.ac").removeClass("opened")
       localStorage.setItem("lastOpened", "panorama")
     )
