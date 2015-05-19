@@ -1,5 +1,5 @@
 @_ = {
-    animation: {
-    }
+  animation: {
+  }
 }
 window.app = @_
