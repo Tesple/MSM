@@ -1,76 +1,104 @@
 class _.animation.Panorama
-
-  x1: undefined
-  y1: undefined
-  moving: false
-  $viewer:  $('#viewer')
-  $cube:    $('#cube')
-  w_v:      undefined
-  h_v:      undefined
-  c_x_deg:  0 # current x
-  c_y_deg:  0
-  perspective: 450 #// current y
+  n: {}
 
   constructor: ->
-    @w_v:      $viewer.width() # width of viewer
-    @h_v:      $viewer.height() # height of viewer
     window.pano = @
     if $.browser.isMobile
       @prepareMobileVersion()
-      #@pinMobileEvents()
+      @pinMobileEvents()
     else
-      @prepareMobileVersion()
-
-      #@prepareDesktopVersion()
-      #@pinDesktopEvents()
+      @prepareDesktopVersion()
 
   prepareMobileVersion: =>
     $("#move-up, #move-down, #move-left, #move-right").remove()
+    _t = this
+    @p = {
+      doc:    $(document)
+      viewer: $("#viewer")
+      cube:   $("#cube")
+    }
+    @m = {
+      moving:   false
+      width:    @p.viewer.width()
+      height:   @p.viewer.height()
+      currentX: 0 #degrees
+      currentY: 0 #degrees
+      perspective: 450
+    }
 
-  pinMobileEvents: =>
-    $viewer.on('mousedown',(e)=>
-      @x1 = e.pageX - $(this).offset().left
-      @y1 = e.pageY - $(this).offset().top
 
-      @moving = true
+  prepareDesktopVersion: =>
+    @enableDragHandler()
+    @n.up     = $("#move-up")
+    @n.down   = $("#move-down")
+    @n.left   = $("#move-left")
+    @n.right  = $("#move-right")
+
+    @n.right.on("click",     => @movePano(5 , 0 ))
+    @n.left.on("click",   => @movePano(-5, 0 ))
+    @n.down.on("click",   => @movePano(0 , -5))
+    @n.up.on("click",  => @movePano(0 , 5 ))
+
+
+  movePano: (mv1, mv2)=>
+    @m.currentX += mv2
+    @m.currentY += mv1
+    vendors = ['-webkit-', '-moz-', '']
+    for v in vendors
+      @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
+
+  enableDragHandler: ->
+    _t = this
+    @p = {
+      doc:    $(document)
+      viewer: $("#viewer")
+      cube:   $("#cube")
+    }
+    @m = {
+      moving:   false
+      width:    @p.viewer.width()
+      height:   @p.viewer.height()
+      currentX: 0 #degrees
+      currentY: 0 #degrees
+      perspective: 450
+    }
+
+    @p.doc.on('mouseup', (e)->
       e.preventDefault()
+      _t.m.moving = false
     )
 
-    $(document).on('mousemove', (e)=>
-      if moving is true
-        @x2 = e.pageX - $viewer.offset().left
-        @y2 = e.pageY - $viewer.offset().top
-
-        @dist_x = @x2 - @x1
-        @dist_y = @y2 - @y1
-        @perc_x = @dist_x / @w_v
-        @perc_y = @dist_y / @h_v
-        @deg_x = Math.atan2(@dist_y, @perspective) / Math.PI * 180
-        @deg_y = -Math.atan2(@dist_x, @perspective) / Math.PI * 180
-
-        @c_x_deg += @deg_x
-        @c_y_deg += @deg_y
-        @c_x_deg = Math.min(90, @c_x_deg)
-        @c_x_deg = Math.max(-90, @c_x_deg)
-
-        @c_y_deg %= 360
-
-        @deg_x = @c_x_deg
-        @deg_y = @c_y_deg
-
-        @x1 = @x2
-        @y1 = @y2
-
-        e.preventDefault()
-    ).on('mouseup', (e)=>
-      @moving = false
+    @p.viewer.on('mousedown', (e)->
       e.preventDefault()
+      _t.m.x1 = e.pageX - $(this).offset().left
+      _t.m.y1 = e.pageY - $(this).offset().top
+      _t.m.moving = true
     )
 
+    @p.doc.on('mousemove', (e)->
+      if _t.m.moving
+        x2 = e.pageX - _t.p.viewer.offset().left
+        y2 = e.pageY - _t.p.viewer.offset().top
+        deg_x  =  Math.atan2(y2 - _t.m.y1, _t.m.perspective) / Math.PI * 180
+        deg_y  = -Math.atan2(x2 - _t.m.x1, _t.m.perspective) / Math.PI * 180
+        vendors = ['-webkit-', '-moz-', '']
+
+        _t.m.currentX += deg_x
+        _t.m.currentY += deg_y
+        _t.m.currentX = Math.min(90, _t.m.currentX)
+        _t.m.currentX = Math.max(-90, _t.m.currentX)
+
+        _t.m.currentY %= 360
+
+        for v in vendors
+          _t.p.cube.css(v + 'transform', 'rotateX(' + _t.m.currentX + 'deg) rotateY(' + _t.m.currentY + 'deg)')
 
 
+        _t.m.x1 = x2
+        _t.m.y1 = y2
 
-
+      e.preventDefault()
+    )
 
   ###
 
@@ -81,44 +109,27 @@ class _.animation.Panorama
        @ns.loader.addImage(@ns.bitmaps[i], 'images/texture' + i + ext )
 
     @ns.loader.onLoadCallback(@initPhoria)
-
+  ###
   pinMobileEvents:=>
-    window.removeEventListener("deviceorientation", @deviceOrientationListener, false)
-    window.removeEventListener("devicemotion",      @deviceMotionListener,      false)
-    if @dat.orientation
-      unless window.DeviceOrientationEvent
-        alert("DeviceOrientationEvent is not supported!")
-      else
-        window.addEventListener('deviceorientation', @deviceOrientationListener, false)
-
-    if @dat.rotationRate or @dat.acceleration
-      unless window.DeviceMotionEvent
-        alert "DeviceMotionEvent is not supported!"
-      else
-        window.addEventListener('devicemotion', @deviceMotionListener, false)
-
-  deviceOrientationListener: (event)=>
-    if @dat.orientation
-      alpha = (event.alpha - 180) / 180
-      beta  = event.beta  / 180
-      gamma = event.gamma / 90
-
-      @statusNode.text("Alpha: #{alpha.toFixed(2)} Beta: #{beta.toFixed(2)} Gamma: #{gamma.toFixed(2)} Orientation: #{window.orientation}")
-      @evalAnimationUpdate(alpha, beta, gamma)
+    window.removeEventListener( "devicemotion",  @deviceMotionListener, false)
+    window.addEventListener(    "devicemotion",  @deviceMotionListener, false)
 
   deviceMotionListener: (event)=>
-    if @dat.rotationRate
-      alpha = event.rotationRate.alpha
-      beta  = event.rotationRate.beta
-      gamma = event.rotationRate.gamma
-      @statusNode.text("Alpha: #{alpha} Beta: #{beta} Gamma: #{gamma} Orientation: #{window.orientation}")
-      @evalAnimationUpdate(alpha, beta, gamma)
+    @alreadyToasted = false
+    x  = event.rotationRate.beta * 360
+    y = event.rotationRate.gamma * 360
 
-    if @dat.acceleration
-      x = event.acceleration.x
-      y = event.acceleration.y
-      z = event.acceleration.z
-      @statusNode.text("X: #{x} Y: #{y} Z: #{z} Orientation: #{window.orientation}")
-      @evalAnimationUpdate(x, y, z)
+    unless x? and y?
+      unless @alreadyToasted
+        alert "Sorry, your device probably doesn't support deviceMotion"
+        @alreadyToasted = true
+      return
+    @evalAnimationUpdate(x, y)
 
-###
+  evalAnimationUpdate: (mv1, mv2)=>
+    alert ""+ mv1+ " " + mv2
+    @m.currentX = mv2
+    @m.currentY = mv1
+    vendors = ['-webkit-', '-moz-', '']
+    for v in vendors
+      @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
