@@ -113,11 +113,12 @@ class _.animation.Panorama
   pinMobileEvents:=>
     window.removeEventListener( "devicemotion",  @deviceMotionListener, false)
     window.addEventListener(    "devicemotion",  @deviceMotionListener, false)
+    @motionUpdate = new Date().getTime()
 
   deviceMotionListener: (event)=>
     @alreadyToasted = false
-    x  = event.rotationRate.beta * 360
-    y = event.rotationRate.gamma * 360
+    x  = event.acceleration.x * 10
+    y = event.acceleration.y * 10
 
     unless x? and y?
       unless @alreadyToasted
@@ -127,9 +128,10 @@ class _.animation.Panorama
     @evalAnimationUpdate(x, y)
 
   evalAnimationUpdate: (mv1, mv2)=>
-    alert ""+ mv1+ " " + mv2
-    @m.currentX = mv2
-    @m.currentY = mv1
-    vendors = ['-webkit-', '-moz-', '']
-    for v in vendors
-      @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
+    if new Date().getTime() - @motionUpdate > 200
+        @motionUpdate = new Date().getTime()
+        @m.currentX = mv1
+        @m.currentY = mv2
+        vendors = ['-webkit-', '-moz-', '']
+        for v in vendors
+          @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
