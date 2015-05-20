@@ -10,7 +10,7 @@ class _.animation.Panorama
       @prepareDesktopVersion()
 
   prepareMobileVersion: =>
-    $("#move-up, #move-down, #move-left, #move-right").remove()
+    #("#move-up, #move-down, #move-left, #move-right").remove()
     _t = this
     @p = {
       doc:    $(document)
@@ -111,27 +111,65 @@ class _.animation.Panorama
     @ns.loader.onLoadCallback(@initPhoria)
   ###
   pinMobileEvents:=>
-    window.removeEventListener( "devicemotion",  @deviceMotionListener, false)
-    window.addEventListener(    "devicemotion",  @deviceMotionListener, false)
-    @motionUpdate = new Date().getTime()
+    window.removeEventListener( "deviceorientation",  @deviceOrientationListener, false)
+    window.addEventListener(    "deviceorientation",  @deviceOrientationListener, false)
+    @m.previousAlpha = 0
+    @m.previousBeta  = 0
+    @m.previousGamma = 0
 
-  deviceMotionListener: (event)=>
+
+  deviceOrientationListener: (event)=>
+    $("#log").removeClass("block")
+    if window.orientation isnt 90
+      $("#log").addClass("block").html("Change device orientation to 90deg")
+      return
+
+
     @alreadyToasted = false
-    x  = event.acceleration.x * 10
-    y = event.acceleration.y * 10
+    alpha = event.alpha
+    beta  = event.beta
+    gamma = event.gamma
 
-    unless x? and y?
+
+    $("#log").html("""
+      Alpha: #{alpha.toFixed(2)}<br>
+      Beta:  #{beta .toFixed(2)}<br>
+      Gamma: #{gamma.toFixed(2)}<br>
+    """)
+
+    unless alpha? and beta?
       unless @alreadyToasted
         alert "Sorry, your device probably doesn't support deviceMotion"
         @alreadyToasted = true
       return
-    @evalAnimationUpdate(x, y)
+    if Math.abs(@m.previousAlpha - alpha) > 1
+      @m.previousAlpha = alpha
+    if Math.abs(@m.previousGamma - gamma) > 1
+      @m.previousGamma  = gamma
+    @notUpdated = true
+    @evalAnimationUpdate(@m.previousAlpha, beta, @m.previousGamma)
 
-  evalAnimationUpdate: (mv1, mv2)=>
-    if new Date().getTime() - @motionUpdate > 200
-        @motionUpdate = new Date().getTime()
-        @m.currentX = mv1
-        @m.currentY = mv2
-        vendors = ['-webkit-', '-moz-', '']
-        for v in vendors
-          @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
+  evalAnimationUpdate: (mv1, mv2, mv3)=>
+    #console.warn "Alpha: #{mv1}"
+    #console.warn "Beta:  #{mv2}"
+    if mv3 <= 0
+      mv3 = -90 - mv3
+    else mv3 = 90 - mv3
+
+    if mv1 < 180
+      mv1 = 180 - mv1
+      #mv1 = @m.currentY
+    else mv1 = - (mv1 % 180)
+    #else mv3 = 90 - mv3
+    if mv3 > 0
+      mv1 -= 180
+
+    if @notUpdated or Math.abs(@m.currentX - mv3) < 5
+      @m.currentX = mv3
+    if @notUpdated or Math.abs(@m.currentY - mv1) < 5
+      @m.currentY = mv1
+    @notUpdated = false
+    #@m.currentY = 360 - mv1
+    vendors = ['-webkit-', '-moz-', '']
+    for v in vendors
+      @p.cube.css(v + 'transform', 'rotateX(' + @m.currentX + 'deg) rotateY(' + @m.currentY + 'deg)')
