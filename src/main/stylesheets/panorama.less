@@ -1,6 +1,6 @@
 @import "./colors";
 
-@base: 10/7;
+@base: 1;
 
 #panorama * {
   -webkit-user-select: none;
@@ -81,7 +81,7 @@
     background-size: cover;
     position: absolute;
     text-align: center;
-    left: 0;
+    left: 15vw;
     top: 0;
     width: @base*70vw;
     height: 100vh;
@@ -103,6 +103,23 @@
     height: @base*240vw;
     margin-left: -@base*85vw;
     margin-top: -@base*100vw;
+}
+#log {
+  position: absolute;
+  left: 40vw;
+  color: white;
+  z-index: 1;
+}
+#log.block {
+  z-index: 40;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, .75);
+  color: @black;
+  padding: 40vh 0;
+  font-size: 6vw;
 }
 
 #cube {
