@@ -1,0 +1,169 @@
+@import "./colors";
+
+#options-modal {
+  z-index: -10;
+  background: @grey;
+  color: @white;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 2vw;
+  height: 100vh;
+}
+
+@media (orientation: landscape) {
+  #options-modal {
+    .table {
+      display: inline-block;
+      width: 40vw;
+      height: 30vw;
+      border: 1px solid #000;
+      padding-top: 2vw;
+    }
+    .row {
+      display: block;
+      height: 9vw;
+    }
+    .cell{
+      display: inline-block;
+      width: 8vw;
+      line-height: 8vw;
+      font-size: 3vw;
+      &.bordered {
+        border: .25vw solid @white;
+      }
+    }
+    .files-list {
+      .select-option, .close-option {
+        span {
+          display: block;
+          margin: 1vw;
+          color: @black;
+          padding: .25vw .25vw;
+          border-radius: .5vw;
+          background-color: @white;
+          width: 14vw;
+          font-family: "Vidaloka";
+          cursor: pointer;
+          display: inline-block;
+          font-size: 2.25vw;
+        }
+      }
+
+      .close-option {
+        margin-top: 10px;
+        text-align: right;
+        span {
+          text-align: center;
+        }
+        #options-confirm {
+          display: none;
+        }
+      }
+
+      .break-or {
+        text-align: center;
+        padding: 10px;
+
+      }
+
+      display: inline-block;
+      font-size: 3vw;
+      width: 56vw;
+      input[type=file] {
+        max-width: 37vw;
+        font-size: 2.25vw;
+      }
+      input[type=button], input[type=submit] {
+        max-width: 37vw;
+        font-size: 2.5vw;
+        margin-top: 2vw;
+        margin-bottom: 2vw;
+      }
+    }
+
+    .table, .files-list {
+      vertical-align: top;
+    }
+  }
+}
+
+
+@media (orientation: portrait) {
+  .table {
+    display: inline-block;
+    width: 100vw;
+    height: 30vh;
+    border: 1px solid #000;
+    padding-top: 2vh;
+  }
+  .row {
+    display: block;
+    height: 9vh;
+  }
+  .cell{
+    display: inline-block;
+    width: 8vh;
+    line-height: 8vh;
+    font-size: 3vh;
+    &.bordered {
+      border: .25vh solid @white;
+    }
+  }
+  .files-list {
+    width: 90vw !important;
+    .select-option, .close-option {
+      span {
+        display: block;
+        margin: 1vw;
+        color: @black;
+        padding: .25vw .25vw;
+        border-radius: .5vw;
+        background-color: @white;
+        width: 20vw;
+        font-family: "Vidaloka";
+        cursor: pointer;
+        display: inline-block;
+        font-size: 4vw;
+      }
+    }
+
+    .close-option {
+      margin-top: 10px;
+      text-align: right;
+      span {
+        text-align: center;
+      }
+      #options-confirm {
+        display: none;
+      }
+    }
+
+    .break-or {
+      text-align: center;
+      padding: 10px;
+      font-size: 3vw;
+    }
+
+    form {
+      line-height: 8vw;
+      font-size: 3.5vw;
+    }
+
+    input[type=file] {
+      max-width: 50vw;
+      font-size: 3.25vw;
+    }
+    input[type=button], input[type=submit] {
+      max-width: 50vw;
+      font-size: 3.5vw;
+      margin-top: 2vw;
+      margin-bottom: 2vw;
+    }
+  }
+
+  .table, .files-list {
+    vertical-align: top;
+  }
+}

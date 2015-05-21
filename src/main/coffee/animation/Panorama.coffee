@@ -9,8 +9,31 @@ class _.animation.Panorama
     else
       @prepareDesktopVersion()
 
+    @options = $("#panorama-options")
+    @options.on("click", @customize)
+    @top      = $("#panorama #viewer #cube-container #cube img.top")
+    @left     = $("#panorama #viewer #cube-container #cube img.left")
+    @front    = $("#panorama #viewer #cube-container #cube img.front")
+    @right    = $("#panorama #viewer #cube-container #cube img.right")
+    @back     = $("#panorama #viewer #cube-container #cube img.back")
+    @bottom   = $("#panorama #viewer #cube-container #cube img.bottom")
+
+  customize: =>
+    unless @oC?
+      @oC = new _.animation.OptionsController(@)
+    @oC.open()
+
+  handleOptionsChange: (selectedImages)=>
+    @top   .attr("src", selectedImages[0])
+    @left  .attr("src", selectedImages[1])
+    @front .attr("src", selectedImages[2])
+    @right .attr("src", selectedImages[3])
+    @back  .attr("src", selectedImages[4])
+    @bottom.attr("src", selectedImages[5])
+
+
+
   prepareMobileVersion: =>
-    #("#move-up, #move-down, #move-left, #move-right").remove()
     _t = this
     @p = {
       doc:    $(document)
@@ -150,8 +173,10 @@ class _.animation.Panorama
     @evalAnimationUpdate(@m.previousAlpha, beta, @m.previousGamma)
 
   evalAnimationUpdate: (mv1, mv2, mv3)=>
+    $("#move-up, #move-down, #move-left, #move-right").remove()
     #console.warn "Alpha: #{mv1}"
     #console.warn "Beta:  #{mv2}"
+    #console.warn mv3
     if mv3 <= 0
       mv3 = -90 - mv3
     else mv3 = 90 - mv3
