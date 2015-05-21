@@ -18,11 +18,20 @@ class _.animation.PhoriaAnimation
     window.an = @
     @statusNode = $("body #status")
     @setupNamespace()
-    @loadBitmaps()
+    defArr = [
+        'images/texture0.jpg',
+        'images/texture0.jpg',
+        'images/texture0.jpg',
+        'images/texture0.jpg',
+        'images/texture0.jpg',
+        'images/texture0.jpg'
+    ]
+    @loadBitmaps(defArr)
 
     if $.browser.isMobile
       @pinMobileEvents()
       @pinMobileGUIControls()
+      @tickMenu()
     else
       @pinGUIControls()
 
@@ -52,11 +61,13 @@ class _.animation.PhoriaAnimation
     @ns.heading  = 0.0
     @ns.lookAt   = vec3.fromValues(0, -5, 1)
 
-  loadBitmaps:=>
-    ext = if @dat.nature then ".jpg" else ".png"
-    for i in [0...6]
+  handleOptionsChange: (imgArr)=>
+    @loadBitmaps(imgArr)
+
+  loadBitmaps: (bitmapsArray)=>
+    for val, i in bitmapsArray
        @ns.bitmaps.push(new Image())
-       @ns.loader.addImage(@ns.bitmaps[i], 'images/texture' + i + ext )
+       @ns.loader.addImage(@ns.bitmaps[i], val)
 
     @ns.loader.onLoadCallback(@initPhoria)
 
@@ -101,20 +112,23 @@ class _.animation.PhoriaAnimation
 
     window.requestAnimFrame(fnAnimate)
 
+  customize: =>
+    unless @oC?
+      @oC = new _.animation.OptionsController(@)
+    @oC.open()
 
   pinGUIControls: =>
-    obj = {customize: (-> alert "options")}
+    obj = {CUSTOMIZE: @customize}
     @ns.gui = new dat.GUI()
     f = @ns.gui.addFolder('Rotation speed')
     f.add(@pos, "alpha").min(-1).max(1).step(0.01)
     f.add(@pos, "beta" ).min(-1).max(1).step(0.01)
     f.add(@pos, "gamma").min(-1).max(1).step(0.01)
-    f = @ns.gui.addFolder('Options')
-    f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
-    f.add(obj, "customize")
+
+    @ns.gui.add(obj, 'CUSTOMIZE')
 
   pinMobileGUIControls: =>
-    obj = {customize: (-> alert "options")}
+    obj = {CUSTOMIZE: @customize}
     @ns.gui = new dat.GUI()
     changeValue = (v1, v2, v3, v4, v5)=>
       @dat.orientation  = v1
@@ -149,12 +163,21 @@ class _.animation.PhoriaAnimation
         @dat.keepGoing != @dat.keepGoing
         changeValue(@dat.orientation, @dat.rotationRate, @dat.acceleration, false, @dat.keepGoing)
     )
-    f = @ns.gui.addFolder('Options')
-    f.add(@dat, 'nature').listen().onChange(=>@loadBitmaps())
-    f.add(obj, "customize")
+    @ns.gui.add(obj, 'CUSTOMIZE')
 
+  tickMenu: =>
+    setInterval((
+        =>
+          elements = $(".dg.main .folder .cr.boolean")
+          if elements.length
+            keys = Object.keys(@dat)
+            for key, value of @dat
+              if value
+                $(elements[keys.indexOf(key)]).addClass("checked")
+              else $(elements[keys.indexOf(key)]).removeClass("checked")
+      ), 100)
 
-  pinMobileEvents:=>
+  pinMobileEvents: ()=>
     window.removeEventListener("deviceorientation", @deviceOrientationListener, false)
     window.removeEventListener("devicemotion",      @deviceMotionListener,      false)
     if @dat.orientation

@@ -50,6 +50,7 @@
                         <!-- others -->
                         <file>animation/PhoriaAnimation.js</file>
                         <file>animation/Panorama.js</file>
+                        <file>animation/OptionsController.js</file>
                         <file>init.js</file>
                     </jsAggregationFiles>
                 </configuration>
