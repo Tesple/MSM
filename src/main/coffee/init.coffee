@@ -30,7 +30,7 @@ class _.Init
       elements.removeClass("opened")
       panorama.addClass("opened")
       splash.addClass("hidden")
-      unless @phoriaStarted
+      unless @panoramaStarted
         panoramaAnimation = new _.animation.Panorama()
         @panoramaStarted = true
       datGUI   = $(".dg.ac").removeClass("opened")
